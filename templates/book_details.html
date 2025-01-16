@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details - {{ book.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center">Book Details: {{ book.title }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ book.title }}</h5>
+            <p class="card-text">Author: {{ book.author }}</p>
+            <p class="card-text">Price: ${{ book.price }}</p>
+            <p class="card-text">ISBN: {{ book.isbn }}</p>
+            <p class="card-text">Status: {% if book.is_available %}Available{% else %}Not Available{% endif %}</p>
+
+            {% if user.is_staff %}
+                <h4>Update Book Availability</h4>
+                <form method="POST" action="{% url 'update-availability' book.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="is_available">Is the book available?</label>
+                        <select name="is_available" id="is_available" class="form-control">
+                            <option value="True" {% if book.is_available %}selected{% endif %}>Yes</option>
+                            <option value="False" {% if not book.is_available %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Update Availability</button>
+                </form>
+            {% endif %}
+            
+            <a href="{% url 'borrow-book' book.id %}" class="btn btn-primary">Borrow this Book</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="alert alert-info mt-3">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

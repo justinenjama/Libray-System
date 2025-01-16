@@ -1,0 +1,24 @@
+body{
+    background-color: aquamarine;
+}
+h1{
+    color: red;
+    text-align: center;
+    font-size: 4.5rem;
+    text-shadow:
+        3px 3px 5px rgba(0, 0, 0, 0.2),
+        6px 6px 10px rgba(0, 0, 0, 0.2),
+        9px 9px 15px rgba(0, 0, 0, 0.1);
+    animation: rotate3d 7s linear;
+}
+.messages{
+    color: red;
+}
+@keyframes rotate3d {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+    100% {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}

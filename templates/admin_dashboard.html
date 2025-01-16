@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'assets/css/home.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="text-center">{{ user.username }} Dashboard</h1>
+
+    <!-- Search Form -->
+    <div class="mb-4">
+        <form method="get" action="{% url 'admin-dashboard' %}">
+            <div class="form-row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" placeholder="Search Borrower by Username" value="{{ search_query }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary btn-block">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if page_obj %}
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Due Date</th>
+                    <th>Borrower</th>
+                    <th>Status</th>
+                    <th>Overdue Fee</th>
+                    <th>Lost Fee</th>
+                    <th>Total Fee</th>
+                    <th>Mark Available</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.borrowing.book.title }}</td>
+                        <td>{{ item.borrowing.return_date }}</td>
+                        <td>{{ item.borrowing.borrower.username }}</td>
+                        <td>
+                            {% if item.borrowing.is_returned %}
+                                Returned
+                            {% else %}
+                                Not Returned
+                            {% endif %}
+                        </td>
+                        <td>${{ item.overdue_fee }}</td>
+                        <td>${{ item.lost_fee }}</td>
+                        <td>${{ item.total_fee }}</td>
+                        <td>
+                            {% if item.borrowing.is_returned %}
+                                <form method="POST" action="{% url 'mark-available' item.borrowing.book.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-info">Mark as Available</button>
+                                </form>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not item.borrowing.is_returned %}
+                                <form method="POST" action="{% url 'clear-return' item.borrowing.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Mark as Returned</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">No borrowed books found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="d-flex justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1&search={{ search_query }}">First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}">Last</a></li>
+                {% endif %}
+            </ul>
+        </div>
+
+    {% else %}
+        <p>No borrowed books found.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

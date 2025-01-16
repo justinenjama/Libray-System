@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Borrowers</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center">Search Results for '{{ search_query }}'</h1>
+
+    {% if borrowed_books_with_fees %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Overdue Fee</th>
+                    <th>Lost Fee</th>
+                    <th>Total Fee</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in borrowed_books_with_fees %}
+                    <tr>
+                        <td>{{ item.borrowing.book.title }}</td>
+                        <td>{{ item.borrowing.return_date }}</td>
+                        <td>
+                            {% if item.borrowing.is_returned %}
+                                Returned
+                            {% else %}
+                                Not Returned
+                            {% endif %}
+                        </td>
+                        <td>${{ item.overdue_fee }}</td>
+                        <td>${{ item.lost_fee }}</td>
+                        <td>${{ item.total_fee }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

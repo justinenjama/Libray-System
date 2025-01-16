@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'assets/css/home.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="text-center">{{ user.username }} Dashboard</h1>
+
+    <!-- Display messages -->
+    {% for message in messages %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+
+    <h2>Your Borrowed Books</h2>
+    
+    {% if borrowed_books_with_fees %}
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Overdue Fee</th>
+                    <th>Lost Fee</th>
+                    <th>Total Fee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in page_obj %}
+                    <tr>
+                        <td>{{ item.borrowing.book.title }}</td>
+                        <td>{{ item.borrowing.borrow_date }}</td>
+                        <td>{{ item.borrowing.return_date }}</td>
+                        <td>
+                            {% if item.borrowing.is_returned %}
+                                Returned
+                            {% else %}
+                                Not Returned
+                            {% endif %}
+                        </td>
+                        <td>${{ item.overdue_fee }}</td>
+                        <td>${{ item.lost_fee }}</td>
+                        <td>${{ item.total_fee }}</td>
+                        <td>
+                            {% if not item.borrowing.is_returned %}
+                                <form method="POST" action="{% url 'clear-return' item.borrowing.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Mark as Returned</button>
+                                </form>
+                            {% else %}
+                                <span class="text-success">Already Returned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have not borrowed any books yet.</p>
+    {% endif %}
+</div>
+
+<!-- Pagination Controls -->
+<div class="d-flex justify-content-center">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1&search={{ search_query }}">First</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}">Last</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+</body>
+</html>
